@@ -1,0 +1,18 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/MovieDB ECMA/.vs/MovieDB ECMA/v15/Server/sqlite3
+/MovieDB ECMA/obj
+/MovieDB ECMA/bin
+/obj
+/bin
+.suo
+.dll
+.pdb
+/TestHarness/obj/bin/Debug
+/TestHarness/obj/Debug
+*.cache
+/TestHarness/App.config
+/MovieDB ECMA/.vs/MovieDB ECMA/DesignTimeBuild/.dtbcache
