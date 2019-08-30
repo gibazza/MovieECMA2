@@ -42,6 +42,7 @@ namespace FimSync_Ezma
         private int _currentPageSize;
         private int _objectCount;
         private bool _skipPeople;
+        private int _personCount;
 
         //Operators
         private RESTHandler _peopleDiscovery;
@@ -73,6 +74,7 @@ namespace FimSync_Ezma
                 _personDiscoveryList = _peopleDiscovery.ReadObjects();
                 _moviesList = new List<MovieDiscoveryJsonTypes.Result>();
                 _objectCount = 0;
+                _personCount = 0;
                 _skipPeople = false;
             }
             catch (Exception ex)
@@ -92,13 +94,12 @@ namespace FimSync_Ezma
             if (!_skipPeople)
             {
                 //foreach (JObject person in _personDiscoveryList)
-                for (int peepsPos = _currentPeoplePos; peepsPos < _personDiscoveryList.Count; peepsPos++)
+                foreach (JObject person in _personDiscoveryList)
                 {
                     CSEntryChange csentryPerson = CSEntryChange.Create();
                     csentryPerson.ObjectType = CS_OBJECTTYPE_PERSON;
                     csentryPerson.ObjectModificationType = ObjectModificationType.Add;
-                    Dictionary<string, JToken> result = _personDiscoveryList[peepsPos].ToObject<Dictionary<string, JToken>>();
-                    foreach (KeyValuePair<string, JToken> item in result)
+                    foreach (KeyValuePair<string, JToken> item in person)
                     {
                         if (item.Key.ToLower().Equals("id"))
                         {
@@ -151,20 +152,30 @@ namespace FimSync_Ezma
                             csentryPerson.AttributeChanges.Add(AttributeChange.CreateAttributeAdd(item.Key, item.Value.ToString()));
                         }
                     }
-                    csentries.Add(csentryPerson);
-                    if (peepsPos >= _currentPageSize)
+                    bool addPerson = true;
+                    foreach (CSEntryChange item in csentries)
+                    {
+                        addPerson = !(item.AnchorAttributes[0].Value.Equals(csentryPerson.AnchorAttributes[0].Value));
+                    }
+                    if (addPerson)
+                    {
+                        csentries.Add(csentryPerson);
+                        _objectCount++;
+                    }
+
+                    if (_objectCount >= _currentPageSize)
                     {
                         importReturnInfo.MoreToImport = true;
-                        _currentPeoplePos = peepsPos;
                         break;
                     }
                 }
+                _personCount = _objectCount++;
             }
+
 
             if (!importReturnInfo.MoreToImport)
             {
-                //foreach (MovieDiscoveryJsonTypes.Result movie in _moviesList)
-                for (int moviesPos = _currentMoviePos; moviesPos < _moviesList.Count; moviesPos++)
+                for (int moviesPos = _objectCount - _personCount; moviesPos < _moviesList.Count; moviesPos++)
                 {
                     string anchor = "id";
 
@@ -181,28 +192,18 @@ namespace FimSync_Ezma
                             csentryMovie.AnchorAttributes.Add(AnchorAttribute.Create(propertyName, propertyValue));
                         }
                         else if (property.Name.ToLower().Equals("item")) { }
-                        else if (property.Name != null)
+                        else if (property.Name != null && _moviesList[moviesPos][property.Name] != null)
                         {
-                            csentryMovie.AttributeChanges.Add(AttributeChange.CreateAttributeAdd(property.Name, property.Name));
+                            csentryMovie.AttributeChanges.Add(AttributeChange.CreateAttributeAdd(property.Name, _moviesList[moviesPos][property.Name].ToString()));
                         }
                     }
                     csentries.Add(csentryMovie);
-                    if (_currentPeoplePos >= _personDiscoveryList.Count)
+                    _objectCount++;
+                    if (_objectCount >= _currentPageSize)
                     {
-                        if (_currentMoviePos >= _currentPageSize)
-                        {
-                            importReturnInfo.MoreToImport = true;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        if (_currentMoviePos + _currentPeoplePos >= _currentPageSize)
-                        {
-                            _skipPeople = true;
-                            importReturnInfo.MoreToImport = true;
-                            break;
-                        }
+                        _skipPeople = true;
+                        importReturnInfo.MoreToImport = true;
+                        break;
                     }
                 }
             }
