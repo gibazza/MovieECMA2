@@ -16,3 +16,5 @@
 *.cache
 /TestHarness/App.config
 /MovieDB ECMA/.vs/MovieDB ECMA/DesignTimeBuild/.dtbcache
+/MovieDB ECMA/.vs/MovieDB ECMA/v16/Server/sqlite3
+/TestHarness/.vs/TestHarness/v16/Server/sqlite3
