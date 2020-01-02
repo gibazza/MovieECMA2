@@ -32,6 +32,12 @@ namespace FimSync_Ezma.PersonDiscoveryJsonTypes
         [JsonProperty("adult")]
         public bool adult { get; set; }
 
+        [JsonProperty("known_for_department")]
+        public string known_for_department { get; set; }
+
+        [JsonProperty("gender")]
+        public int gender { get; set; }
+
         public object this[string propertyName]
         {
             get

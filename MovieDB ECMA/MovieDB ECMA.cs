@@ -33,6 +33,7 @@ namespace FimSync_Ezma
         //Constants
         private const string CS_OBJECTTYPE_PERSON = "person";
         private const string CS_OBJECTTYPE_MOVIE = "movie";
+        private const string ANCHOR = "id";
 
         //Import
         private string _lastRunTimeStamp;
@@ -93,7 +94,6 @@ namespace FimSync_Ezma
 
             if (!_skipPeople)
             {
-                //foreach (JObject person in _personDiscoveryList)
                 foreach (JObject person in _personDiscoveryList)
                 {
                     CSEntryChange csentryPerson = CSEntryChange.Create();
@@ -101,9 +101,9 @@ namespace FimSync_Ezma
                     csentryPerson.ObjectModificationType = ObjectModificationType.Add;
                     foreach (KeyValuePair<string, JToken> item in person)
                     {
-                        if (item.Key.ToLower().Equals("id"))
+                        if (item.Key.ToLower().Equals(ANCHOR))
                         {
-                            string itemName = string.Format("{0}_{1}", CS_OBJECTTYPE_PERSON, item.Key);
+                            string itemName = string.Format("{0}_{1}", CS_OBJECTTYPE_PERSON, ANCHOR);
                             string itemValue = string.Format("{0}_{1}", CS_OBJECTTYPE_PERSON, item.Value.ToString());
                             csentryPerson.AnchorAttributes.Add(AnchorAttribute.Create(itemName, itemValue));
                         }
@@ -172,23 +172,20 @@ namespace FimSync_Ezma
                 _personCount = _objectCount++;
             }
 
-
             if (!importReturnInfo.MoreToImport)
             {
                 for (int moviesPos = _objectCount - _personCount; moviesPos < _moviesList.Count; moviesPos++)
                 {
-                    string anchor = "id";
-
                     CSEntryChange csentryMovie = CSEntryChange.Create();
                     csentryMovie.ObjectType = CS_OBJECTTYPE_MOVIE;
                     csentryMovie.ObjectModificationType = ObjectModificationType.Add;
 
                     foreach (PropertyInfo property in _moviesList[moviesPos])
                     {
-                        if (property.Name.Equals("id"))
+                        if (property.Name.Equals(ANCHOR))
                         {
-                            string propertyName = string.Format("{0}_{1}", CS_OBJECTTYPE_MOVIE, anchor);
-                            string propertyValue = string.Format("{0}_{1}", CS_OBJECTTYPE_MOVIE, _moviesList[moviesPos][anchor].ToString());
+                            string propertyName = string.Format("{0}_{1}", CS_OBJECTTYPE_MOVIE, ANCHOR);
+                            string propertyValue = string.Format("{0}_{1}", CS_OBJECTTYPE_MOVIE, _moviesList[moviesPos][ANCHOR].ToString());
                             csentryMovie.AnchorAttributes.Add(AnchorAttribute.Create(propertyName, propertyValue));
                         }
                         else if (property.Name.ToLower().Equals("item")) { }
@@ -278,7 +275,8 @@ namespace FimSync_Ezma
                             break;
                     }
                 }
-                else if (item.Name.ToLower().Equals("item")) { }
+                else if (item.Name.ToLower().Equals("item"))
+                { }
                 else
                 {
                     personType.Attributes.Add(SchemaAttribute.CreateSingleValuedAttribute(item.Name, AttributeType.String));

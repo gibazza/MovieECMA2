@@ -19,7 +19,7 @@ namespace TestHarness
         #region constants
         private const string  _LANG = "en-GB";
         private const string _RESTBASEURL = "https://api.themoviedb.org/3/";
-        private const string _LIMITRTNPAGES = "40";
+        private const string _LIMITRTNPAGES = "1";
         #endregion
 
         private static readonly string _APIKEY = ConfigurationManager.AppSettings["APIKey"];

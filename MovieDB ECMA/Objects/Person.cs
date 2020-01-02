@@ -50,6 +50,9 @@ namespace FimSync_Ezma
 
         [JsonProperty("homepage")]
         public string homepage { get; set; }
+
+        [JsonProperty("known_for_department")]
+        public string known_for_department { get; set; }
     }
 
 }
